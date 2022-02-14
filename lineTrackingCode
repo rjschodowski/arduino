@@ -1,0 +1,227 @@
+//www.elegoo.com
+
+// First part of the code is for the L298N chipset on the version 3 model
+// Second part is the coede for the TB6612 chipset on the version 4 model
+// Comment out the code that is unnecessary for your module
+
+//// ---------------------Begin v3 -----------------------------------------
+//    The direction of the car's movement L298N Ver 3
+//  ENA   ENB   IN1   IN2   IN3   IN4   Description  
+//  HIGH  HIGH  HIGH  LOW   LOW   HIGH  Car is running forward
+//  HIGH  HIGH  LOW   HIGH  HIGH  LOW   Car is running back
+//  HIGH  HIGH  LOW   HIGH  LOW   HIGH  Car is turning left
+//  HIGH  HIGH  HIGH  LOW   HIGH  LOW   Car is turning right
+//  HIGH  HIGH  LOW   LOW   LOW   LOW   Car is stopped
+//  HIGH  HIGH  HIGH  HIGH  HIGH  HIGH  Car is stopped
+//  LOW   LOW   N/A   N/A   N/A   N/A   Car is stopped
+
+//define L298n module IO Pin
+#define ENA 5  // can modify this value using PWM, 0-255 to change speed
+#define ENB 6  // can modify this value using PWM, 0-255 to change speed
+#define IN1 7
+#define IN2 8
+#define IN3 9
+#define IN4 11
+
+//Line Tracking IO define
+#define LT_R !digitalRead(10)
+#define LT_M !digitalRead(4)
+#define LT_L !digitalRead(2)
+
+#define carSpeed 180 //Set value 0-255, 8-bit  //I changed the speed temporarily to have better control when working on getting vehicle to go in reverse. Reversing after getting to end of the line is yet to be completed.
+
+void forward(){
+  analogWrite(ENA, carSpeed); //enable pin to write analog value 0-255
+  analogWrite(ENB, carSpeed); //enable pin to write analog value 0-255
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  Serial.println("go forward!");
+}
+
+void back(){
+  analogWrite(ENA, carSpeed);  //enable pin to write analog value 0-255
+  analogWrite(ENB, carSpeed);  //enable pin to write analog value 0-255
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  Serial.println("go back!");
+}
+
+void left(){
+  analogWrite(ENA, carSpeed);  //enable pin to write analog value 0-255
+  analogWrite(ENB, carSpeed);  //enable pin to write analog value 0-255
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  Serial.println("go left!");
+}
+
+void right(){
+  analogWrite(ENA, carSpeed);  //enable pin to write analog value 0-255
+  analogWrite(ENB, carSpeed);  //enable pin to write analog value 0-255
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW); 
+  Serial.println("go right!");
+} 
+
+void stop(){
+   digitalWrite(ENA, LOW);
+   digitalWrite(ENB, LOW);
+   Serial.println("Stop!");
+} 
+
+//before execute loop() function
+//before using IO pins, pin mode must be set first  
+//setup() function will execute first and only execute once
+void setup(){
+  Serial.begin(9600);  //open serial port and set baud rate
+  pinMode(10,INPUT);
+  pinMode(4,INPUT);
+  pinMode(2,INPUT);
+  pinMode(IN1,OUTPUT);
+  pinMode(IN2,OUTPUT);
+  pinMode(IN3,OUTPUT);
+  pinMode(IN4,OUTPUT);
+  pinMode(ENA,OUTPUT);
+  pinMode(ENB,OUTPUT);
+}
+
+void loop() {
+  if(LT_M){
+    forward();
+  }
+  else if(LT_R) { 
+    right();
+    while(LT_R);                             
+  }   
+  else if(LT_L) {
+    left();
+    while(LT_L);  
+  }
+  else stop();
+  delay(1000);
+}
+
+//This is starter code for use if using v4 Smart Robot vehicle
+
+//// ---------------------Begin v4 -----------------------------------------
+//
+////    The direction of the car's movement TB6612 (v4)
+////  PWMA   PWMB   AIN_1   BIN_1   STBY      Description  
+////  PWM    PWM    HIGH    HIGH    HIGH      Car is running forward
+////  PWM    PWM    LOW     LOW     HIGH      Car is running back
+////  PMW    PWM    HIGH    LOW     HIGH      Car is turning left
+////  PWM    PWM    LOW     HIGH    HIGH      Car is turning right
+////  0      0      N/A     N/A     LOW       Car is stopped (direction_void)
+//
+////define TB6612 module IO Pins
+//#define STBY 3 //STBY
+//#define ENA 5 //PWMA
+//#define ENB 6 //PWMB
+//#define AIN_1 7 //AIN_1
+//#define BIN_1 8 //BIN_1
+//
+//#define LT_R A0
+//#define LT_M A1
+//#define LT_L A2
+//
+//#define carSpeed 250 //Set value 0-255, 8-bit 
+//
+//public: 
+////If the value read by the photoelectric sensor is within 250 ~ 850,
+////the photoelectric sensor is in the black line.
+//uint16_t TrackingDetection_S = 250;
+//uint16_t TrackingDetection_E = 850;
+//
+//void forward(){ 
+//  analogWrite(ENA,carSpeed); //enable A channel
+//  analogWrite(ENB,carSpeed); //enable B channel
+//  digitalWrite(AIN_1,HIGH); //set AIN_1 high level
+//  digitalWrite(BIN_1,HIGH);  //set BIN_1 high level
+//  digitalWrite(STBY,HIGH);  //set STBY high level
+//  Serial.println("Forward");//send message to serial monitor
+//}
+//
+//void back(){
+//  analogWrite(ENA,carSpeed); //enable A channel
+//  analogWrite(ENB,carSpeed); //enable B channel
+//  digitalWrite(AIN_1,LOW); //set AIN_1 low level
+//  digitalWrite(BIN_1,LOW);  //set BIN_1 low level
+//  digitalWrite(STBY,HIGH);  //set STBY high level
+//  Serial.println("Back");
+//}
+//
+//void left(){
+//  analogWrite(ENA,carSpeed); //enable A channel
+//  analogWrite(ENB,carSpeed); //enable B channel
+//  digitalWrite(AIN_1, HIGH); //set AIN_1 low level
+//  digitalWrite(BIN_1,LOW);  //set BIN_1 low level
+//  digitalWrite(STBY,HIGH);  //set STBY high level
+//  Serial.println("Left");
+//}
+//
+//void right(){
+//  analogWrite(ENA,carSpeed); //enable A channel
+//  analogWrite(ENB,carSpeed); //enable B channel
+//  digitalWrite(AIN_1, LOW); //set AIN_1 low level
+//  digitalWrite(BIN_1,HIGH);  //set BIN_1 low level
+//  digitalWrite(STBY,HIGH);  //set STBY high level
+//  Serial.println("Right");
+//}
+//
+//void stop(){
+//   digitalWrite(ENA, LOW);
+//   digitalWrite(ENB, LOW);
+//   digitalWrite(STBY,LOW);  //set STBY low level
+//   Serial.println("Stop!");
+//}
+//
+////before execute loop() function, 
+////setup() function will execute first and only execute once
+//void setup() {
+//  Serial.begin(9600);//open serial and set the baudrate
+//  pinMode(AIN_1,OUTPUT);//before useing io pin, pin mode must be set first 
+//  pinMode(BIN_1,OUTPUT);
+//  pinMode(STBY,OUTPUT);
+//  pinMode(ENA,OUTPUT);
+//  pinMode(ENB,OUTPUT);
+//  pinMode(LT_L, INPUT);
+//  pinMode(LT_M, INPUT);
+//  pinMode(LT_R, INPUT);
+//}
+//
+////Repeat execution
+////Analog value needs to be read and determine a threshold value for detection, usually between 250 & 850
+////If the value detected is between these, then the line is detected and follow the logic
+//
+//void loop() {
+//  // Test algorithm to output to serial monitor
+//  // Check and see if values are between 250 & 850 when detecting a line
+//  print_time = millis();
+//  Serial.print("ITR20001_getAnaloguexxx_L=");
+//  Serial.println(LT_L);
+//  Serial.print("ITR20001_getAnaloguexxx_M=");
+//  Serial.println(LT_M);
+//  Serial.print("ITR20001_getAnaloguexxx_R=");
+//  Serial.println(LT_R);
+//    
+//  
+////  // Driving alogrithm for line detection
+////  if(TrackingDetection_S <= LT_M && LT_M <= TrackingDetection_E){
+////    forward();
+////  }
+////  else if(TrackingDetection_S <= LT_R && LT_R <= TrackingDetection_E) { 
+////    right();
+////    while(TrackingDetection_S <= LT_R && LT_R <= TrackingDetection_E);                             
+////  }   
+////  else if(TrackingDetection_S <= LT_L && LT_L <= TrackingDetection_E) {
+////    left();
+////    while(TrackingDetection_S <= LT_L && LT_L <= TrackingDetection_E);  
+////  }
+//}
