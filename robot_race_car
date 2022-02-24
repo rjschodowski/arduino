@@ -28,7 +28,7 @@
 #define LT_M !digitalRead(4)
 #define LT_L !digitalRead(2)
 
-#define carSpeed 180 //Set value 0-255, 8-bit 
+#define carSpeed 200 //Set value 0-255, 8-bit 
 
 void forward(){
   analogWrite(ENA, carSpeed); //enable pin to write analog value 0-255
@@ -115,7 +115,13 @@ void setup(){
   
   if(LT_M && LT_L && LT_R) {
     counter++;
-    for(int i = 0; i < counter; i++) {
+//    if(counter < 3) {
+//      blink();
+//    } else {
+//      stop();
+//      exit(0);
+//      }
+   for(int i = 0; i < counter; i++) {
       blink();
       }
     if(counter == 3) {
